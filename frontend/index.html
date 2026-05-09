@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#0f0f11" />
+  <meta name="description" content="ArchIQ — Architecture-Aware Career Intelligence Platform for Hardware & Embedded Engineers. Extract skills, estimate depth, score role fit, and match to real roles." />
+
+  <!-- SEO / social -->
+  <meta name="robots" content="index,follow" />
+  <meta name="language" content="en" />
+  <link rel="canonical" href="https://archiq.vercel.app/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="ArchIQ — Career Intelligence for Hardware Engineers" />
+  <meta property="og:description" content="Extract architecture-aware skills and score role fit for hardware, embedded, and silicon engineers." />
+  <meta property="og:url" content="https://archiq.vercel.app/" />
+  <meta property="og:image" content="https://archiq.vercel.app/og.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ArchIQ — Career Intelligence for Hardware Engineers" />
+  <meta name="twitter:description" content="Extract architecture-aware skills and score role fit for hardware, embedded, and silicon engineers." />
+  <meta name="twitter:image" content="https://archiq.vercel.app/og.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>ArchIQ — Career Intelligence for Hardware Engineers</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f11;
+      --bg2: #161618;
+      --bg3: #1c1c1f;
+      --bg4: #242428;
+      --border: #2a2a2e;
+      --border2: #333338;
+      --text: #f0f0f0;
+      --text2: #a0a0a8;
+      --text3: #606068;
+      --green: #1db97c;
+      --green-bg: #0d2e1e;
+      --blue: #3b82f6;
+      --blue-bg: #0d1f3e;
+      --purple: #8b5cf6;
+      --purple-bg: #1e1232;
+      --orange: #f59e0b;
+      --orange-bg: #2a1f08;
+      --red: #ef4444;
+      --red-bg: #2a1010;
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Inter', sans-serif;
+      --r: 8px;
+      --rl: 12px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.4);
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Layout ──────────────────────────── */
+    .app { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 220px; min-width: 220px;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      padding: 16px 10px;
+      position: fixed; top: 0; left: 0; bottom: 0;
+      z-index: 100;
+      transition: transform .3s;
+    }
+    .sidebar.hidden { transform: translateX(-100%); }
+    .main-content {
+      margin-left: 220px;
+      flex: 1;
+      min-height: 100vh;
+      transition: margin-left .3s;
+    }
+    .main-content.full { margin-left: 0; }
+
+    /* ─── Sidebar ─────────────────────────── */
+    .logo {
+      font-size: 18px; font-weight: 700;
+      padding: 4px 8px 20px;
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: var(--green); }
+    .logo sub { font-size: 10px; color: var(--text3); font-weight: 400; letter-spacing: 0; }
+
+    .nav-section { font-size: 10px; color: var(--text3); padding: 12px 8px 4px; text-transform: uppercase; letter-spacing: .8px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 8px 10px; border-radius: var(--r);
+      cursor: pointer; font-size: 13px; color: var(--text2);
+      transition: all .15s; user-select: none;
+    }
+    .nav-item:hover { background: var(--bg3); color: var(--text); }
+    .nav-item.active { background: var(--bg4); color: var(--text); font-weight: 500; border: 1px solid var(--border2); }
+    .nav-icon { font-size: 16px; width: 18px; text-align: center; }
+    .nav-badge {
+      margin-left: auto; background: var(--green); color: #000;
+      font-size: 10px; font-weight: 600; padding: 1px 6px;
+      border-radius: 10px; min-width: 18px; text-align: center;
+    }
+
+    /* ─── Topbar ──────────────────────────── */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 24px;
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .menu-btn {
+      display: none; background: none; border: none;
+      color: var(--text2); cursor: pointer; font-size: 20px;
+      padding: 4px;
+    }
+    .topbar h2 { font-size: 16px; font-weight: 600; }
+    .topbar-sub { font-size: 12px; color: var(--text3); }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+    /* ─── Buttons ─────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: var(--r);
+      border: none; cursor: pointer; font-size: 13px;
+      font-family: var(--sans); font-weight: 500;
+      transition: all .15s; white-space: nowrap;
+    }
+    .btn-primary { background: var(--green); color: #000; }
+    .btn-primary:hover { background: #17a068; }
+    .btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border2); }
+    .btn-secondary:hover { background: var(--bg4); }
+    .btn-ghost { background: transparent; color: var(--text2); }
+    .btn-ghost:hover { background: var(--bg3); color: var(--text); }
+    .btn-sm { padding: 5px 10px; font-size: 12px; }
+    .btn-danger { background: var(--red-bg); color: var(--red); border: 1px solid #3a1515; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ─── Cards ───────────────────────────── */
+    .card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--rl); padding: 18px;
+    }
+    .card-title {
+      font-size: 13px; font-weight: 600;
+      margin-bottom: 14px; display: flex;
+      align-items: center; justify-content: space-between;
+    }
+    .card-action { font-size: 11px; color: var(--blue); cursor: pointer; font-weight: 400; }
+    .card-action:hover { text-decoration: underline; }
+
+    /* ─── Stats grid ──────────────────────── */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .stat-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--rl); padding: 16px;
+    }
+    .stat-label { font-size: 11px; color: var(--text3); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .4px; }
+    .stat-val { font-size: 26px; font-weight: 700; line-height: 1; }
+    .stat-sub { font-size: 11px; color: var(--text3); margin-top: 5px; }
+    .stat-delta { font-size: 11px; font-weight: 500; margin-top: 5px; }
+    .up { color: var(--green); }
+    .warn { color: var(--orange); }
+    .danger { color: var(--red); }
+
+    /* ─── Skill bars ──────────────────────── */
+    .skill-row { margin-bottom: 11px; }
+    .skill-hdr {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 5px;
+    }
+    .skill-name { font-size: 12px; color: var(--text2); }
+    .bar-bg { background: var(--bg4); border-radius: 3px; height: 6px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 3px; transition: width .6s ease; }
+    .depth-pill {
+      font-size: 9px; padding: 2px 7px; border-radius: 20px;
+      font-weight: 600; letter-spacing: .3px; white-space: nowrap;
+    }
+    .d-prod  { background: #2a1a0e; color: #f59e0b; }
+    .d-arch  { background: #1e1232; color: #a78bfa; }
+    .d-opt   { background: #0d2e1e; color: #1db97c; }
+    .d-impl  { background: #0d1f3e; color: #60a5fa; }
+    .d-aware { background: var(--bg4); color: var(--text3); }
+
+    /* ─── Role fit ────────────────────────── */
+    .role-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px 0; cursor: pointer; border-radius: var(--r);
+    }
+    .role-row:hover .role-name { color: var(--blue); }
+    .role-name-txt { font-size: 12px; color: var(--text2); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .role-bar-bg { flex: 2; background: var(--bg4); border-radius: 3px; height: 7px; overflow: hidden; }
+    .role-bar-fill { height: 100%; border-radius: 3px; }
+    .role-pct { font-size: 11px; font-weight: 600; min-width: 28px; text-align: right; }
+
+    /* ─── Job cards ───────────────────────── */
+    .job-card {
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: var(--rl); padding: 14px; margin-bottom: 10px;
+      cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    .job-card:hover { border-color: var(--border2); background: var(--bg4); }
+    .job-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .job-title { font-size: 13px; font-weight: 600; color: var(--text); }
+    .job-company { font-size: 12px; color: var(--text3); margin-top: 2px; }
+    .match-badge {
+      font-size: 11px; font-weight: 700; padding: 3px 9px;
+      border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+    }
+    .match-high { background: var(--green-bg); color: var(--green); border: 1px solid #0f4028; }
+    .match-med  { background: var(--orange-bg); color: var(--orange); border: 1px solid #3a2a08; }
+    .match-low  { background: var(--bg4); color: var(--text3); border: 1px solid var(--border); }
+    .job-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+    .tag {
+      font-size: 10px; background: var(--bg2); color: var(--text3);
+      border: 1px solid var(--border); padding: 2px 8px; border-radius: 20px;
+      font-family: var(--mono);
+    }
+    .job-source { font-size: 10px; color: var(--text3); margin-top: 6px; }
+
+    /* ─── Gap items ───────────────────────── */
+    .gap-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .gap-item:last-child { border-bottom: none; }
+    .gap-icon {
+      width: 32px; height: 32px; border-radius: var(--r);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 15px;
+    }
+    .gap-title { font-size: 13px; font-weight: 500; color: var(--text); }
+    .gap-reason { font-size: 11px; color: var(--text3); margin-top: 3px; }
+    .pri-tag { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 600; display: inline-block; margin-top: 5px; }
+    .pri-high { background: var(--red-bg); color: var(--red); }
+    .pri-med  { background: var(--orange-bg); color: var(--orange); }
+    .pri-low  { background: var(--bg4); color: var(--text3); }
+
+    /* ─── Domain bars ─────────────────────── */
+    .domain-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .domain-item { }
+    .domain-lbl { font-size: 11px; color: var(--text3); margin-bottom: 5px; }
+    .domain-val { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .domain-bar { height: 4px; border-radius: 2px; overflow: hidden; background: var(--bg4); }
+    .domain-bar-fill { height: 100%; border-radius: 2px; }
+
+    /* ─── AI Banner ───────────────────────── */
+    .ai-banner {
+      background: linear-gradient(135deg, #0d2e1e, #0d1f3e);
+      border: 1px solid #0f4028; border-radius: var(--rl);
+      padding: 14px 18px; display: flex;
+      align-items: center; gap: 14px; cursor: pointer;
+      transition: border-color .2s;
+    }
+    .ai-banner:hover { border-color: var(--green); }
+    .ai-icon { font-size: 22px; }
+    .ai-text { flex: 1; }
+    .ai-text strong { font-size: 13px; color: var(--text); }
+    .ai-text p { font-size: 12px; color: var(--text3); margin-top: 2px; }
+    .ai-cta { font-size: 12px; color: var(--green); white-space: nowrap; }
+
+    /* ─── Upload zone ─────────────────────── */
+    .upload-zone {
+      border: 2px dashed var(--border2); border-radius: var(--rl);
+      padding: 40px 20px; text-align: center; cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    .upload-zone:hover, .upload-zone.drag { border-color: var(--green); background: var(--green-bg); }
+    .upload-icon { font-size: 40px; margin-bottom: 12px; }
+    .upload-title { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
+    .upload-sub { font-size: 12px; color: var(--text3); }
+
+    /* ─── Chat ────────────────────────────── */
+    .chat-wrap { display: flex; flex-direction: column; height: calc(100vh - 120px); }
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 20px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .chat-bubble {
+      max-width: 80%; padding: 12px 16px; border-radius: var(--rl);
+      font-size: 13px; line-height: 1.6;
+    }
+    .chat-bubble.user {
+      background: var(--blue-bg); border: 1px solid #1a3a6a;
+      color: var(--text); align-self: flex-end;
+    }
+    .chat-bubble.assistant {
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text); align-self: flex-start;
+    }
+    .chat-bubble.assistant strong { color: var(--green); }
+    .chat-input-row {
+      display: flex; gap: 10px; padding: 16px 20px;
+      background: var(--bg2); border-top: 1px solid var(--border);
+    }
+    .chat-input {
+      flex: 1; background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: var(--r); padding: 10px 14px;
+      color: var(--text); font-size: 13px; font-family: var(--sans);
+      outline: none; resize: none;
+    }
+    .chat-input:focus { border-color: var(--green); }
+    .chat-input::placeholder { color: var(--text3); }
+
+    /* ─── Progress ────────────────────────── */
+    .progress-bar-bg { background: var(--bg4); border-radius: 4px; height: 8px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: var(--green); border-radius: 4px; transition: width .4s ease; }
+
+    /* ─── Tabs ────────────────────────────── */
+    .tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+    .tab {
+      font-size: 12px; padding: 6px 14px; border-radius: var(--r);
+      cursor: pointer; background: var(--bg3);
+      border: 1px solid var(--border); color: var(--text2);
+      transition: all .15s; white-space: nowrap;
+    }
+    .tab.on { background: var(--bg4); color: var(--text); border-color: var(--border2); font-weight: 500; }
+
+    /* ─── Inputs ──────────────────────────── */
+    .input {
+      width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: var(--r); padding: 10px 14px;
+      color: var(--text); font-size: 13px; font-family: var(--sans);
+      outline: none;
+    }
+    .input:focus { border-color: var(--green); }
+    .input::placeholder { color: var(--text3); }
+    .textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
+    label { font-size: 12px; color: var(--text3); display: block; margin-bottom: 6px; }
+    .form-group { margin-bottom: 16px; }
+
+    /* ─── Spinner / loading ───────────────── */
+    .spinner {
+      width: 18px; height: 18px; border: 2px solid var(--border);
+      border-top-color: var(--green); border-radius: 50%;
+      animation: spin .7s linear infinite; display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.6);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200; flex-direction: column; gap: 16px;
+    }
+    .loading-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--rl); padding: 32px 40px;
+      text-align: center; min-width: 300px;
+    }
+
+    /* ─── Toast ───────────────────────────── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--bg3); border: 1px solid var(--border2);
+      border-radius: var(--r); padding: 12px 18px;
+      font-size: 13px; color: var(--text); z-index: 300;
+      animation: slideIn .3s ease;
+      max-width: 320px;
+    }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error { border-color: var(--red); color: var(--red); }
+    @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* ─── Onboarding ──────────────────────── */
+    .onboard-wrap {
+      min-height: 100vh; display: flex;
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .onboard-card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 16px; padding: 40px; max-width: 500px;
+      width: 100%;
+    }
+    .onboard-logo { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+    .onboard-logo span { color: var(--green); }
+    .onboard-sub { font-size: 13px; color: var(--text3); margin-bottom: 32px; line-height: 1.7; }
+    .step-dots { display: flex; gap: 6px; margin-bottom: 24px; }
+    .dot { width: 6px; height: 6px; border-radius: 3px; background: var(--bg4); transition: all .3s; }
+    .dot.active { background: var(--green); width: 20px; }
+
+    /* ─── Misc ────────────────────────────── */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+    .badge-new { background: var(--green-bg); color: var(--green); font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 10px; }
+    .empty-state { text-align: center; padding: 48px 20px; color: var(--text3); }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-title { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 6px; }
+
+    /* ─── Scrollbar ───────────────────────── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 10px; }
+
+    /* ─── Mobile ──────────────────────────── */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .menu-btn { display: block; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .domain-grid { grid-template-columns: 1fr 1fr; }
+      .topbar { padding: 12px 16px; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .domain-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ─── Page sections ───────────────────── */
+    .page { padding: 24px; max-width: 1200px; }
+    .page-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .page-sub { font-size: 13px; color: var(--text3); margin-bottom: 24px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    @media (max-width: 900px) { .two-col, .three-col { grid-template-columns: 1fr; } }
+
+    /* ─── Overlay backdrop ────────────────── */
+    .backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      z-index: 99; display: none;
+    }
+    .backdrop.show { display: block; }
+
+    /* ─── Roadmap ─────────────────────────── */
+    .roadmap-item {
+      display: flex; gap: 14px; padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      align-items: flex-start;
+    }
+    .roadmap-item:last-child { border-bottom: none; }
+    .roadmap-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--bg4); border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; flex-shrink: 0;
+      color: var(--text2);
+    }
+    .roadmap-num.done { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+    .roadmap-content { flex: 1; }
+    .roadmap-title { font-size: 13px; font-weight: 500; margin-bottom: 3px; }
+    .roadmap-desc { font-size: 11px; color: var(--text3); }
+    .roadmap-meta { font-size: 10px; color: var(--text3); margin-top: 6px; }
+  </style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const RAILWAY_API = 'https://archiq-backend-production.up.railway.app/api/v1';
+const API = window.location.hostname === 'localhost'
+  ? 'http://localhost:8000/api/v1'
+  : RAILWAY_API;
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let state = {
+  page: 'onboard',
+  user: null,
+  skills: [],
+  roleFits: [],
+  jobs: [],
+  gaps: [],
+  stats: {},
+  topMatches: [],
+  chatMessages: [],
+  scrapeStatus: { status: 'idle', progress: 0, message: '', jobs_found: 0 },
+  loading: false,
+  loadingMsg: '',
+  toast: null,
+  sidebarOpen: false,
+  jobTab: 'all',
+  scrapeRunning: false,
+  onboardStep: 0,
+  onboardName: '',
+  onboardEmail: '',
+  profileText: '',
+  searchQuery: '',
+};
+
+function setState(updates) {
+  Object.assign(state, updates);
+  render();
+}
+
+// ─── API HELPERS ─────────────────────────────────────────────────────────────
+async function api(method, path, body = null, isFormData = false) {
+  const opts = {
+    method,
+    headers: isFormData ? {} : { 'Content-Type': 'application/json' },
+    body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
+  };
+  try {
+    const res = await fetch(`${API}${path}`, opts);
+    if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`);
+    return await res.json();
+  } catch (e) {
+    showToast('API error: ' + e.message, 'error');
+    throw e;
+  }
+}
+
+function showToast(msg, type = 'success') {
+  setState({ toast: { msg, type } });
+  setTimeout(() => setState({ toast: null }), 3500);
+}
+
+// ─── API ACTIONS ─────────────────────────────────────────────────────────────
+async function createUser() {
+  if (!state.onboardName || !state.onboardEmail) {
+    showToast('Please fill in name and email', 'error'); return;
+  }
+  setState({ loading: true, loadingMsg: 'Creating your profile...' });
+  try {
+    const user = await api('POST', '/users', { name: state.onboardName, email: state.onboardEmail });
+    setState({ user, loading: false });
+    if (state.onboardStep < 2) setState({ onboardStep: state.onboardStep + 1 });
+  } catch { setState({ loading: false }); }
+}
+
+async function submitProfile() {
+  if (!state.profileText.trim()) { showToast('Please enter your profile text', 'error'); return; }
+  setState({ loading: true, loadingMsg: 'Extracting technical skills from your profile...' });
+  try {
+    const res = await api('POST', '/profile/text', {
+      user_id: state.user.user_id,
+      text: state.profileText,
+      source_type: 'manual'
+    });
+    showToast(`✅ Extracted ${res.skills_extracted} technical skills!`);
+    setState({ skills: res.skills, loading: false, onboardStep: 2 });
+    await loadDashboard();
+  } catch { setState({ loading: false }); }
+}
+
+async function uploadResume(file) {
+  setState({ loading: true, loadingMsg: 'Parsing resume and extracting skills...' });
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch(`${API}/profile/upload?user_id=${state.user.user_id}`, {
+      method: 'POST', body: fd
+    });
+    const data = await res.json();
+    showToast(`✅ Extracted ${data.skills_extracted} skills from resume!`);
+    setState({ skills: data.skills, loading: false });
+    await loadDashboard();
+  } catch (e) {
+    setState({ loading: false }); showToast('Upload failed', 'error');
+  }
+}
+
+async function loadDashboard() {
+  if (!state.user) return;
+  try {
+    const data = await api('GET', `/dashboard/${state.user.user_id}`);
+    setState({
+      skills: data.user_skills || [],
+      roleFits: data.role_fits || [],
+      topMatches: data.top_matches || [],
+      gaps: data.gaps || [],
+      stats: data.stats || {},
+      page: 'dashboard'
+    });
+  } catch {}
+}
+
+async function loadJobs() {
+  setState({ loading: true, loadingMsg: 'Loading matched jobs...' });
+  try {
+    const uid = state.user?.user_id;
+    const path = uid ? `/jobs?user_id=${uid}&limit=50` : '/jobs?limit=50';
+    const res = await api('GET', path);
+    setState({ jobs: res.jobs || [], loading: false });
+  } catch { setState({ loading: false }); }
+}
+
+async function triggerScrape() {
+  setState({ scrapeRunning: true });
+  showToast('🔍 Job scraping started! This takes 1-2 minutes...');
+  try {
+    await api('POST', '/jobs/scrape', {
+      user_id: state.user?.user_id,
+      query: state.searchQuery || null
+    });
+    // Poll status
+    const poll = setInterval(async () => {
+      const st = await api('GET', '/scrape/status');
+      setState({ scrapeStatus: st });
+      if (st.status === 'done' || st.status === 'error') {
+        clearInterval(poll);
+        setState({ scrapeRunning: false });
+        if (st.status === 'done') {
+          showToast(`✅ Found ${st.jobs_found} jobs! Computing matches...`);
+          await computeMatches();
+          await loadJobs();
+        }
+      }
+    }, 2000);
+  } catch { setState({ scrapeRunning: false }); }
+}
+
+async function computeMatches() {
+  if (!state.user) return;
+  try {
+    await api('POST', `/jobs/match/${state.user.user_id}`);
+    await new Promise(r => setTimeout(r, 2000)); // wait for bg task
+  } catch {}
+}
+
+async function sendChat(msg) {
+  if (!msg.trim() || !state.user) return;
+  const msgs = [...state.chatMessages, { role: 'user', content: msg }];
+  setState({ chatMessages: msgs });
+  try {
+    const res = await api('POST', '/mentor/chat', {
+      user_id: state.user.user_id,
+      message: msg
+    });
+    setState({ chatMessages: [...state.chatMessages, { role: 'assistant', content: res.response }] });
+  } catch {
+    setState({ chatMessages: [...state.chatMessages, { role: 'assistant', content: 'Unable to connect to AI mentor. Please ensure the backend is running.' }] });
+  }
+}
+
+async function loadChatHistory() {
+  if (!state.user) return;
+  try {
+    const res = await api('GET', `/mentor/history/${state.user.user_id}`);
+    setState({ chatMessages: res.messages || [] });
+  } catch {}
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function depthClass(d) {
+  return { production_exposure: 'd-prod', architecture_reasoning: 'd-arch', optimization: 'd-opt', implementation: 'd-impl', awareness: 'd-aware' }[d] || 'd-aware';
+}
+function depthLabel(d) {
+  return { production_exposure: 'production', architecture_reasoning: 'arch reasoning', optimization: 'optimization', implementation: 'implementation', awareness: 'awareness' }[d] || d;
+}
+function depthBar(d) {
+  return { production_exposure: 100, architecture_reasoning: 85, optimization: 68, implementation: 50, awareness: 25 }[d] || 30;
+}
+function depthColor(d) {
+  return { production_exposure: '#f59e0b', architecture_reasoning: '#8b5cf6', optimization: '#1db97c', implementation: '#3b82f6', awareness: '#606068' }[d] || '#606068';
+}
+function scoreColor(s) {
+  if (s >= 80) return '#1db97c';
+  if (s >= 60) return '#3b82f6';
+  if (s >= 40) return '#f59e0b';
+  return '#606068';
+}
+function matchClass(s) {
+  if (s >= 75) return 'match-high';
+  if (s >= 50) return 'match-med';
+  return 'match-low';
+}
+function domainEmoji(d) {
+  return { performance_engineering: '⚡', architecture_validation: '🔬', embedded_soc: '🔧', hw_sw_codesign: '🔗', ai_accelerators: '🧠', computer_architecture: '💻', compiler_runtime: '⚙️' }[d] || '📌';
+}
+function priorityClass(p) {
+  return { high: 'pri-high', medium: 'pri-med', low: 'pri-low' }[p] || 'pri-low';
+}
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function formatMd(text) {
+  return escHtml(text)
+    .replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--green)">$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>');
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  const root = document.getElementById('root');
+  if (state.page === 'onboard') {
+    root.innerHTML = renderOnboard();
+  } else {
+    root.innerHTML = `
+      <div class="app">
+        ${renderSidebar()}
+        <div class="main-content" id="mainContent">
+          <div class="backdrop ${state.sidebarOpen ? 'show' : ''}" onclick="closeSidebar()"></div>
+          ${renderTopbar()}
+          ${renderPage()}
+        </div>
+      </div>
+      ${state.loading ? renderLoadingOverlay() : ''}
+      ${state.toast ? `<div class="toast ${state.toast.type}">${escHtml(state.toast.msg)}</div>` : ''}
+    `;
+  }
+  attachEvents();
+}
+
+// ─── ONBOARD ──────────────────────────────────────────────────────────────────
+function renderOnboard() {
+  const { onboardStep: step } = state;
+  return `
+    <div class="onboard-wrap">
+      <div class="onboard-card">
+        <div class="onboard-logo">Arch<span>IQ</span></div>
+        <p class="onboard-sub">Architecture-aware career intelligence for hardware &amp; embedded engineers. Not keyword matching — real domain reasoning.</p>
+        <div class="step-dots">
+          ${[0,1,2].map(i => `<div class="dot ${i <= step ? 'active' : ''}"></div>`).join('')}
+        </div>
+        ${step === 0 ? `
+          <div class="form-group">
+            <label>Your Name</label>
+            <input class="input" id="ob-name" placeholder="e.g. Rahul Kumar" value="${escHtml(state.onboardName)}" />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input class="input" id="ob-email" type="email" placeholder="rahul@example.com" value="${escHtml(state.onboardEmail)}" />
+          </div>
+          <button class="btn btn-primary" style="width:100%" onclick="obStep0()">Get Started →</button>
+        ` : step === 1 ? `
+          <p style="font-size:13px;color:var(--text2);margin-bottom:16px">
+            Paste your resume, skills, project descriptions, or LinkedIn about section. The more detail, the better the matching.
+          </p>
+          <div class="form-group">
+            <label>Your profile / skills / experience</label>
+            <textarea class="input textarea" id="ob-profile" placeholder="e.g. I worked on BIST-based SoC aging detection with 16-bit LFSR patterns. Designed AMBA APB protocol for power-efficient SoC. M.Tech project on embedded systems. Familiar with RISC-V, PMU, performance counters...">${escHtml(state.profileText)}</textarea>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-bottom:10px" onclick="obSubmitProfile()">Extract Skills & Continue →</button>
+          <p style="text-align:center;font-size:12px;color:var(--text3)">or <span style="color:var(--blue);cursor:pointer" onclick="setState({onboardStep:2})">skip for now →</span></p>
+        ` : `
+          <div style="text-align:center;padding:20px 0">
+            <div style="font-size:40px;margin-bottom:12px">🎉</div>
+            <div style="font-size:18px;font-weight:600;margin-bottom:8px">Welcome, ${escHtml(state.user?.name || '')}!</div>
+            <p style="font-size:13px;color:var(--text3);margin-bottom:24px">
+              ${state.skills.length > 0
+                ? `Extracted <strong style="color:var(--green)">${state.skills.length} technical skills</strong>. Your career intelligence dashboard is ready.`
+                : 'Your profile is ready. Add your skills from the dashboard.'}
+            </p>
+            <button class="btn btn-primary" style="width:100%" onclick="goDashboard()">Open Dashboard →</button>
+          </div>
+        `}
+      </div>
+    </div>
+    ${state.loading ? renderLoadingOverlay() : ''}
+    ${state.toast ? `<div class="toast ${state.toast.type}">${escHtml(state.toast.msg)}</div>` : ''}
+  `;
+}
+
+// ─── SIDEBAR ──────────────────────────────────────────────────────────────────
+function renderSidebar() {
+  const pages = [
+    { id: 'dashboard', icon: '◼', label: 'Dashboard' },
+    { id: 'jobs', icon: '💼', label: 'Job Matches', badge: state.topMatches.length || null },
+    { id: 'skills', icon: '⚡', label: 'My Skills' },
+    { id: 'roles', icon: '🎯', label: 'Role Fit' },
+    { id: 'gaps', icon: '🗺', label: 'Gap Analysis' },
+    { id: 'roadmap', icon: '📍', label: 'Roadmap' },
+    { id: 'mentor', icon: '🤖', label: 'AI Mentor' },
+    { id: 'profile', icon: '👤', label: 'Profile' },
+  ];
+  return `
+    <div class="sidebar ${state.sidebarOpen ? 'open' : ''}" id="sidebar">
+      <div class="logo">Arch<span>IQ</span><br/><sub>career intelligence</sub></div>
+      ${pages.map(p => `
+        <div class="nav-item ${state.page === p.id ? 'active' : ''}" onclick="goPage('${p.id}')">
+          <span class="nav-icon">${p.icon}</span>
+          ${escHtml(p.label)}
+          ${p.badge ? `<span class="nav-badge">${p.badge}</span>` : ''}
+        </div>
+      `).join('')}
+      <div style="margin-top:auto;padding-top:12px;border-top:1px solid var(--border)">
+        <div style="font-size:11px;color:var(--text3);padding:8px 10px">
+          ${state.user ? `👤 ${escHtml(state.user.name)}` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── TOPBAR ───────────────────────────────────────────────────────────────────
+const PAGE_TITLES = {
+  dashboard: ['Dashboard', 'Architecture-aware career intelligence'],
+  jobs: ['Job Matches', 'Direct-scraped from LinkedIn, Indeed, company careers'],
+  skills: ['My Skills', 'Technical depth estimation'],
+  roles: ['Role Fit', 'Architecture domain role mapping'],
+  gaps: ['Gap Analysis', 'Prioritized skill gaps to unlock more roles'],
+  roadmap: ['Learning Roadmap', 'Personalized technical growth path'],
+  mentor: ['AI Mentor', 'Architecture-aware career reasoning'],
+  profile: ['Profile', 'Manage your resume and skills input'],
+};
+
+function renderTopbar() {
+  const [title, sub] = PAGE_TITLES[state.page] || ['ArchIQ', ''];
+  return `
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+        <div>
+          <div class="topbar" style="padding:0;background:none;border:none">
+            <h2>${escHtml(title)}</h2>
+          </div>
+          <div class="topbar-sub">${escHtml(sub)}</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        ${state.page === 'jobs' ? `
+          <button class="btn btn-secondary btn-sm" onclick="goPage('jobs'); loadJobs()">🔄 Refresh</button>
+          <button class="btn btn-primary btn-sm ${state.scrapeRunning ? 'disabled' : ''}" onclick="${state.scrapeRunning ? '' : 'triggerScrape()'}">
+            ${state.scrapeRunning ? '<span class="spinner"></span> Scraping...' : '🔍 Search Jobs'}
+          </button>
+        ` : ''}
+        ${state.page === 'dashboard' ? `
+          <button class="btn btn-secondary btn-sm" onclick="loadDashboard()">🔄</button>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+// ─── PAGES ────────────────────────────────────────────────────────────────────
+function renderPage() {
+  switch (state.page) {
+    case 'dashboard': return renderDashboard();
+    case 'jobs': return renderJobs();
+    case 'skills': return renderSkills();
+    case 'roles': return renderRoles();
+    case 'gaps': return renderGaps();
+    case 'roadmap': return renderRoadmap();
+    case 'mentor': return renderMentor();
+    case 'profile': return renderProfile();
+    default: return renderDashboard();
+  }
+}
+
+// ── DASHBOARD ────────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const { stats, skills, roleFits, topMatches, gaps } = state;
+  const hasData = skills.length > 0;
+
+  return `<div class="page">
+    ${!hasData ? `
+      <div class="ai-banner" onclick="goPage('profile')" style="margin-bottom:20px">
+        <div class="ai-icon">📄</div>
+        <div class="ai-text">
+          <strong>Add your resume or skills to unlock full intelligence</strong>
+          <p>Upload PDF or paste your experience — we'll extract technical depth automatically</p>
+        </div>
+        <div class="ai-cta">Add profile →</div>
+      </div>
+    ` : `
+      <div class="ai-banner" onclick="goPage('mentor')" style="margin-bottom:20px">
+        <div class="ai-icon">🤖</div>
+        <div class="ai-text">
+          <strong>Your PMU + SoC profile aligns strongly with Architecture Validation &amp; Performance Engineering roles</strong>
+          <p>Ask the AI mentor why → explain my best career path</p>
+        </div>
+        <div class="ai-cta">Ask mentor →</div>
+      </div>
+    `}
+
+    <div class="stats-grid" style="margin-bottom:14px">
+      <div class="stat-card">
+        <div class="stat-label">Architecture Match</div>
+        <div class="stat-val" style="color:var(--green)">${stats.arch_score || 0}%</div>
+        <div class="stat-sub">vs industry avg</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Matched Roles</div>
+        <div class="stat-val">${stats.total_jobs || 0}</div>
+        <div class="stat-delta up">↑ jobs indexed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Skill Depth Score</div>
+        <div class="stat-val">${stats.skill_depth_score || 0}<span style="font-size:14px;color:var(--text3)">/100</span></div>
+        <div class="stat-sub">${skills.filter(s=>s.depth_level==='architecture_reasoning').length} at arch reasoning</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Gap Items</div>
+        <div class="stat-val">${gaps.length}</div>
+        <div class="stat-delta warn">${gaps.filter(g=>g.priority==='high').length} high priority</div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-bottom:14px">
+      <div class="card">
+        <div class="card-title">Skill Depth Estimation <span class="card-action" onclick="goPage('skills')">View all →</span></div>
+        ${skills.length === 0 ? `<div class="empty-state" style="padding:20px"><div class="empty-icon">⚡</div><p>Add your profile to see skills</p></div>` :
+          skills.slice(0,7).map(s => `
+            <div class="skill-row">
+              <div class="skill-hdr">
+                <span class="skill-name">${escHtml(s.skill_name)}</span>
+                <span class="depth-pill ${depthClass(s.depth_level)}">${depthLabel(s.depth_level)}</span>
+              </div>
+              <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(s.confidence*100)}%;background:${depthColor(s.depth_level)}"></div></div>
+            </div>
+          `).join('')}
+      </div>
+
+      <div class="card">
+        <div class="card-title">Role Fit Map <span class="card-action" onclick="goPage('roles')">Compare roles →</span></div>
+        ${roleFits.length === 0 ? `<div class="empty-state" style="padding:20px"><div class="empty-icon">🎯</div><p>Skills needed to compute role fit</p></div>` :
+          roleFits.slice(0,8).map(r => `
+            <div class="role-row">
+              <span class="role-name-txt">${escHtml(r.role_label)}</span>
+              <div class="role-bar-bg"><div class="role-bar-fill" style="width:${r.score}%;background:${scoreColor(r.score)}"></div></div>
+              <span class="role-pct" style="color:${scoreColor(r.score)}">${r.score}</span>
+            </div>
+          `).join('')}
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-bottom:14px">
+      <div class="card">
+        <div class="card-title">Top Job Matches <span class="card-action" onclick="goPage('jobs')">View all →</span></div>
+        ${topMatches.length === 0 ? `
+          <div class="empty-state" style="padding:20px">
+            <div class="empty-icon">💼</div>
+            <p style="margin-bottom:12px">No matches yet. Scrape jobs first.</p>
+            <button class="btn btn-primary btn-sm" onclick="goPage('jobs')">Search Jobs →</button>
+          </div>
+        ` : topMatches.slice(0,4).map(j => `
+          <div class="job-card">
+            <div class="job-top">
+              <div>
+                <div class="job-title">${escHtml(j.title)}</div>
+                <div class="job-company">${escHtml(j.company)} · ${escHtml(j.location || '')}</div>
+              </div>
+              <span class="match-badge ${matchClass(j.total_score || 0)}">${j.total_score || '?'}%</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="card">
+        <div class="card-title">Gap Analysis <span class="card-action" onclick="goPage('gaps')">Full roadmap →</span></div>
+        ${gaps.length === 0 ? `<div class="empty-state" style="padding:20px"><div class="empty-icon">🗺</div><p>No gaps detected yet</p></div>` :
+          gaps.slice(0,4).map(g => `
+            <div class="gap-item">
+              <div class="gap-icon" style="background:${g.priority==='high' ? 'var(--red-bg)' : 'var(--orange-bg)'}">
+                ${domainEmoji(g.domain)}
+              </div>
+              <div>
+                <div class="gap-title">${escHtml(g.skill_name)}</div>
+                <div class="gap-reason">${escHtml(g.reason_text)}</div>
+                <span class="pri-tag ${priorityClass(g.priority)}">${g.priority}</span>
+              </div>
+            </div>
+          `).join('')}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Architecture Domain Alignment</div>
+      <div class="domain-grid">
+        ${renderDomainBars()}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderDomainBars() {
+  const domains = [
+    { label: 'Perf Engineering', key: 'performance_engineering', color: '#1db97c' },
+    { label: 'Arch Validation', key: 'architecture_validation', color: '#3b82f6' },
+    { label: 'Embedded / SoC', key: 'embedded_soc', color: '#8b5cf6' },
+    { label: 'HW/SW Co-design', key: 'hw_sw_codesign', color: '#f59e0b' },
+    { label: 'AI Accelerators', key: 'ai_accelerators', color: '#ef4444' },
+    { label: 'Compiler / Runtime', key: 'compiler_runtime', color: '#606068' },
+  ];
+  const skills = state.skills;
+  const domainCounts = {};
+  skills.forEach(s => { domainCounts[s.domain_cluster] = (domainCounts[s.domain_cluster] || 0) + 1; });
+  const maxCount = Math.max(1, ...Object.values(domainCounts));
+
+  return domains.map(d => {
+    const count = domainCounts[d.key] || 0;
+    const pct = Math.round((count / Math.max(maxCount, 1)) * 100);
+    return `
+      <div class="domain-item">
+        <div class="domain-lbl">${d.label}</div>
+        <div class="domain-val" style="color:${d.color}">${pct}%</div>
+        <div class="domain-bar"><div class="domain-bar-fill" style="width:${pct}%;background:${d.color}"></div></div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── JOBS PAGE ────────────────────────────────────────────────────────────────
+function renderJobs() {
+  const { jobs, scrapeStatus, scrapeRunning, searchQuery } = state;
+  const filtered = jobs.filter(j => {
+    if (state.jobTab === 'high') return (j.total_score || 0) >= 75;
+    if (state.jobTab === 'medium') return (j.total_score || 0) >= 50 && (j.total_score || 0) < 75;
+    return true;
+  });
+
+  return `<div class="page">
+    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+      <input class="input" id="searchInput" style="flex:1;min-width:200px" placeholder="Search: PMU engineer, RISC-V validation, AI accelerator..." value="${escHtml(searchQuery)}" onkeydown="if(event.key==='Enter')triggerScrape()" />
+      <button class="btn btn-primary" onclick="triggerScrape()" ${scrapeRunning ? 'disabled' : ''}>
+        ${scrapeRunning ? '<span class="spinner"></span> Searching...' : '🔍 Search Internet'}
+      </button>
+      <button class="btn btn-secondary" onclick="loadJobs()">📋 Load Cached</button>
+    </div>
+
+    ${scrapeRunning ? `
+      <div class="card" style="margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+          <span class="spinner"></span>
+          <span style="font-size:13px;color:var(--text2)">${escHtml(scrapeStatus.message || 'Searching...')}</span>
+          <span style="margin-left:auto;font-size:12px;color:var(--text3)">${scrapeStatus.progress || 0}%</span>
+        </div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${scrapeStatus.progress || 0}%"></div></div>
+        <p style="font-size:11px;color:var(--text3);margin-top:8px">Scraping LinkedIn, Indeed, Wellfound, and company career pages...</p>
+      </div>
+    ` : ''}
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div class="tabs" style="margin-bottom:0">
+        <div class="tab ${state.jobTab==='all'?'on':''}" onclick="setState({jobTab:'all'})">All (${jobs.length})</div>
+        <div class="tab ${state.jobTab==='high'?'on':''}" onclick="setState({jobTab:'high'})">Strong Match</div>
+        <div class="tab ${state.jobTab==='medium'?'on':''}" onclick="setState({jobTab:'medium'})">Good Match</div>
+      </div>
+      <span style="font-size:12px;color:var(--text3)">${filtered.length} jobs</span>
+    </div>
+
+    ${filtered.length === 0 ? `
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-title">No jobs loaded yet</div>
+        <p style="margin-bottom:16px">Click "Search Internet" to scrape live jobs from LinkedIn, Indeed, and company career pages</p>
+        <button class="btn btn-primary" onclick="triggerScrape()">🔍 Search Now</button>
+      </div>
+    ` : filtered.map(j => `
+      <div class="job-card" onclick="openJob('${escHtml(j.source_url || '')}')">
+        <div class="job-top">
+          <div style="flex:1">
+            <div class="job-title">${escHtml(j.title)}</div>
+            <div class="job-company">${escHtml(j.company)} · ${escHtml(j.location || 'Remote')} · ${escHtml(j.job_type || 'Full-time')}</div>
+          </div>
+          <span class="match-badge ${matchClass(j.total_score || 0)}">${j.total_score ? j.total_score+'%' : 'New'}</span>
+        </div>
+        ${j.skills_list && j.skills_list.length > 0 ? `
+          <div class="job-tags">
+            ${j.skills_list.slice(0,6).map(s => `<span class="tag">${escHtml(s.replace(/_/g,' '))}</span>`).join('')}
+          </div>
+        ` : ''}
+        <div class="job-source">📡 via ${escHtml(j.source || 'web')} ${j.source_url ? '· <a href="'+escHtml(j.source_url)+'" target="_blank" style="color:var(--blue);text-decoration:none" onclick="event.stopPropagation()">View →</a>' : ''}</div>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+// ── SKILLS PAGE ───────────────────────────────────────────────────────────────
+function renderSkills() {
+  const { skills } = state;
+  const domains = {};
+  skills.forEach(s => {
+    const d = s.domain_cluster || 'general';
+    if (!domains[d]) domains[d] = [];
+    domains[d].push(s);
+  });
+
+  return `<div class="page">
+    ${skills.length === 0 ? `
+      <div class="empty-state">
+        <div class="empty-icon">⚡</div>
+        <div class="empty-title">No skills extracted yet</div>
+        <p style="margin-bottom:16px">Add your resume or profile text to extract technical skills</p>
+        <button class="btn btn-primary" onclick="goPage('profile')">Add Profile →</button>
+      </div>
+    ` : Object.entries(domains).map(([domain, domSkills]) => `
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">${domainEmoji(domain)} ${escHtml(domain.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</div>
+        ${domSkills.map(s => `
+          <div class="skill-row">
+            <div class="skill-hdr">
+              <div>
+                <span class="skill-name" style="font-size:13px;color:var(--text)">${escHtml(s.skill_name)}</span>
+                ${s.evidence_text ? `<div style="font-size:11px;color:var(--text3);margin-top:2px;font-style:italic">"${escHtml(s.evidence_text.slice(0,80))}${s.evidence_text.length>80?'...':''}"</div>` : ''}
+              </div>
+              <span class="depth-pill ${depthClass(s.depth_level)}">${depthLabel(s.depth_level)}</span>
+            </div>
+            <div class="bar-bg"><div class="bar-fill" style="width:${Math.round((s.confidence||0.5)*100)}%;background:${depthColor(s.depth_level)}"></div></div>
+          </div>
+        `).join('')}
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+// ── ROLES PAGE ────────────────────────────────────────────────────────────────
+function renderRoles() {
+  const { roleFits } = state;
+  return `<div class="page">
+    ${roleFits.length === 0 ? `
+      <div class="empty-state">
+        <div class="empty-icon">🎯</div>
+        <div class="empty-title">Add your skills to compute role fit</div>
+        <button class="btn btn-primary" onclick="goPage('profile')" style="margin-top:12px">Add Profile →</button>
+      </div>
+    ` : `
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">Role Fit Map — Architecture Awareness Analysis</div>
+        ${roleFits.map((r, i) => `
+          <div class="role-row" style="padding:10px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:11px;color:var(--text3);min-width:16px">${i+1}</span>
+            <span class="role-name-txt" style="font-size:13px">${escHtml(r.role_label)}</span>
+            <div class="role-bar-bg" style="flex:3"><div class="role-bar-fill" style="width:${r.score}%;background:${scoreColor(r.score)}"></div></div>
+            <span class="role-pct" style="color:${scoreColor(r.score)};font-size:14px">${r.score}%</span>
+          </div>
+          <div style="padding:8px 0 12px 24px;border-bottom:1px solid var(--border);margin-bottom:4px">
+            ${r.matching_skills && r.matching_skills.length > 0 ? `
+              <span style="font-size:10px;color:var(--text3)">Matching: </span>
+              ${r.matching_skills.slice(0,5).map(s => `<span class="tag" style="background:var(--green-bg);color:var(--green);border-color:#0f4028">${escHtml(s.replace(/_/g,' '))}</span>`).join(' ')}
+            ` : ''}
+            ${r.missing_skills && r.missing_skills.length > 0 ? `
+              <span style="font-size:10px;color:var(--text3);margin-left:8px">Missing: </span>
+              ${r.missing_skills.slice(0,3).map(s => `<span class="tag" style="background:var(--red-bg);color:var(--red);border-color:#3a1515">${escHtml(s.replace(/_/g,' '))}</span>`).join(' ')}
+            ` : ''}
+            ${r.companies && r.companies.length > 0 ? `
+              <div style="margin-top:6px;font-size:11px;color:var(--text3)">Target companies: ${escHtml(r.companies.slice(0,4).join(', '))}</div>
+            ` : ''}
+          </div>
+        `).join('')}
+      </div>
+    `}
+  </div>`;
+}
+
+// ── GAPS PAGE ─────────────────────────────────────────────────────────────────
+function renderGaps() {
+  const { gaps } = state;
+  return `<div class="page">
+    ${gaps.length === 0 ? `
+      <div class="empty-state">
+        <div class="empty-icon">🗺</div>
+        <div class="empty-title">No gap analysis yet</div>
+        <p>Add your profile and compute role fits to see personalized gap analysis</p>
+        <button class="btn btn-primary" onclick="goPage('profile')" style="margin-top:12px">Add Profile →</button>
+      </div>
+    ` : `
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">Priority Gap Analysis</div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:16px">Ranked by impact on unlocking your top target roles</p>
+        ${gaps.map((g, i) => `
+          <div class="gap-item">
+            <div class="gap-icon" style="background:${g.priority==='high'?'var(--red-bg)':g.priority==='medium'?'var(--orange-bg)':'var(--bg4)'}">
+              ${domainEmoji(g.domain)}
+            </div>
+            <div style="flex:1">
+              <div class="gap-title">#${i+1} — ${escHtml(g.skill_name)}</div>
+              <div class="gap-reason">${escHtml(g.reason_text)}</div>
+              <span class="pri-tag ${priorityClass(g.priority)}">${g.priority} priority</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `}
+  </div>`;
+}
+
+// ── ROADMAP PAGE ──────────────────────────────────────────────────────────────
+function renderRoadmap() {
+  const { gaps, roleFits } = state;
+  const topRole = roleFits[0];
+
+  const roadmap = [
+    { title: 'Deepen PMU & performance analysis', desc: 'Cycle-accurate profiling, roofline model, IPC/CPI analysis on real hardware. Build a PMU event logger on RISC-V FPGA.', weeks: '2-3', done: true },
+    { title: 'Memory consistency models', desc: 'TSO, SC-DRF, acquire-release ordering, MESI/MOESI coherence. Critical for arch validation and HW/SW co-design roles.', weeks: '3-4', done: false },
+    { title: 'Out-of-order execution depth', desc: 'ROB, reservation stations, register renaming, branch misprediction recovery. Implement or simulate a simplified OoO core.', weeks: '4-5', done: false },
+    { title: 'GPU / SIMT architecture', desc: 'Warp scheduling, CUDA memory hierarchy, tensor cores. CUDA programming + profiling with Nsight.', weeks: '5-6', done: false },
+    { title: 'AI accelerator dataflow', desc: 'Systolic array design, Eyeriss/TPU architecture, data reuse strategies. Build a simple systolic array in RTL.', weeks: '6-8', done: false },
+    { title: 'MLIR / Compiler stack basics', desc: 'LLVM IR, MLIR dialects, how compilers lower to hardware. Understand compilation for AI accelerator backends.', weeks: '8-10', done: false },
+  ];
+
+  return `<div class="page">
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-title">Personalized Learning Roadmap
+        ${topRole ? `<span style="font-size:11px;color:var(--text3)">Targeting: ${escHtml(topRole.role_label)}</span>` : ''}
+      </div>
+      ${roadmap.map((item, i) => `
+        <div class="roadmap-item">
+          <div class="roadmap-num ${item.done ? 'done' : ''}">${item.done ? '✓' : i+1}</div>
+          <div class="roadmap-content">
+            <div class="roadmap-title" style="${item.done ? 'color:var(--green)' : ''}">${escHtml(item.title)}</div>
+            <div class="roadmap-desc">${escHtml(item.desc)}</div>
+            <div class="roadmap-meta">⏱ ${item.weeks} weeks estimated</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+// ── MENTOR PAGE ───────────────────────────────────────────────────────────────
+function renderMentor() {
+  const { chatMessages } = state;
+  const suggestions = [
+    'Why am I suited for architecture validation roles?',
+    'What project would strengthen my AI accelerator skills?',
+    'How does Tenstorrent compare to Arm for my profile?',
+    'Explain the difference between perf engineering and arch validation',
+    'What should I learn first: GPU arch or memory consistency?',
+  ];
+
+  return `<div style="display:flex;flex-direction:column;height:calc(100vh - 57px)">
+    <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px" id="chatScroll">
+      ${chatMessages.length === 0 ? `
+        <div style="text-align:center;padding:40px 20px">
+          <div style="font-size:36px;margin-bottom:12px">🤖</div>
+          <div style="font-size:16px;font-weight:600;margin-bottom:8px">Architecture-Aware AI Mentor</div>
+          <p style="font-size:13px;color:var(--text3);margin-bottom:24px">Ask me anything about your career path, skill gaps, role differences, or which companies to target.</p>
+          <div style="display:flex;flex-direction:column;gap:8px;max-width:400px;margin:0 auto">
+            ${suggestions.map(s => `
+              <button class="btn btn-secondary" onclick="quickChat('${escHtml(s).replace(/'/g, "\\'")}')">
+                ${escHtml(s)}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      ` : chatMessages.map(m => `
+        <div class="chat-bubble ${m.role}" style="${m.role==='user'?'align-self:flex-end':'align-self:flex-start'}">
+          ${m.role === 'assistant' ? `<div style="font-size:10px;color:var(--green);margin-bottom:6px;font-weight:600">🤖 ArchIQ Mentor</div>` : ''}
+          <div>${formatMd(m.content)}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="chat-input-row">
+      <textarea class="chat-input" id="chatInput" rows="2" placeholder="Ask about your career path, skill gaps, role differences..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitChat()}"></textarea>
+      <button class="btn btn-primary" onclick="submitChat()" style="align-self:flex-end">Send</button>
+    </div>
+  </div>`;
+}
+
+// ── PROFILE PAGE ──────────────────────────────────────────────────────────────
+function renderProfile() {
+  return `<div class="page">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Upload Resume (PDF)</div>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()"
+             ondragover="event.preventDefault();this.classList.add('drag')"
+             ondragleave="this.classList.remove('drag')"
+             ondrop="handleDrop(event)">
+          <div class="upload-icon">📄</div>
+          <div class="upload-title">Drop PDF or click to upload</div>
+          <div class="upload-sub">Supports PDF, TXT — max 10MB</div>
+        </div>
+        <input type="file" id="fileInput" accept=".pdf,.txt" style="display:none" onchange="handleFileSelect(event)" />
+      </div>
+
+      <div class="card">
+        <div class="card-title">Paste Profile / Skills</div>
+        <div class="form-group">
+          <label>Resume text, LinkedIn about, project descriptions, or skill list</label>
+          <textarea class="input textarea" id="profileInput" placeholder="e.g.&#10;M.Tech with AMBA APB protocol project. Built BIST-based SoC aging detection system with 16-bit LFSR. Post-silicon validation experience. Familiar with RISC-V, PMU, performance counters, scan chains, DFT...">${escHtml(state.profileText)}</textarea>
+        </div>
+        <button class="btn btn-primary" onclick="submitProfileInput()">Extract Skills →</button>
+      </div>
+    </div>
+
+    ${state.user ? `
+      <div class="card" style="margin-top:14px">
+        <div class="card-title">Account</div>
+        <div style="font-size:13px;color:var(--text2)">
+          <div>👤 <strong>${escHtml(state.user.name)}</strong></div>
+          <div style="color:var(--text3);margin-top:4px">${escHtml(state.user.email)}</div>
+          <div style="margin-top:12px;font-size:12px;color:var(--text3)">
+            ${state.skills.length} skills extracted · User ID: <code style="font-family:var(--mono)">${escHtml(state.user.user_id?.slice(0,8))}...</code>
+          </div>
+        </div>
+      </div>
+    ` : ''}
+  </div>`;
+}
+
+function renderLoadingOverlay() {
+  return `
+    <div class="loading-overlay">
+      <div class="loading-card">
+        <div class="spinner" style="width:32px;height:32px;border-width:3px;margin:0 auto 16px"></div>
+        <div style="font-size:14px;font-weight:500">${escHtml(state.loadingMsg || 'Loading...')}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── EVENT HANDLERS ───────────────────────────────────────────────────────────
+function attachEvents() {}
+
+function goPage(page) {
+  setState({ page, sidebarOpen: false });
+  if (page === 'jobs' && state.jobs.length === 0) loadJobs();
+  if (page === 'mentor' && state.chatMessages.length === 0) loadChatHistory();
+  if (page === 'dashboard' && state.user) loadDashboard();
+  scrollToTop();
+}
+
+function scrollToTop() {
+  const mc = document.getElementById('mainContent');
+  if (mc) mc.scrollTop = 0;
+  window.scrollTo(0, 0);
+}
+
+function toggleSidebar() { setState({ sidebarOpen: !state.sidebarOpen }); }
+function closeSidebar() { setState({ sidebarOpen: false }); }
+function goDashboard() { setState({ page: 'dashboard' }); if (state.user) loadDashboard(); }
+function openJob(url) { if (url) window.open(url, '_blank'); }
+
+function obStep0() {
+  const name = document.getElementById('ob-name')?.value?.trim();
+  const email = document.getElementById('ob-email')?.value?.trim();
+  if (!name || !email) { showToast('Please fill in both fields', 'error'); return; }
+  setState({ onboardName: name, onboardEmail: email });
+  createUser();
+}
+
+function obSubmitProfile() {
+  const text = document.getElementById('ob-profile')?.value?.trim();
+  if (!text) { showToast('Please enter your profile', 'error'); return; }
+  setState({ profileText: text });
+  submitProfile();
+}
+
+function submitProfileInput() {
+  const text = document.getElementById('profileInput')?.value?.trim();
+  if (!text) { showToast('Please enter profile text', 'error'); return; }
+  setState({ profileText: text });
+  submitProfile();
+}
+
+function handleFileSelect(event) {
+  const file = event.target.files?.[0];
+  if (file) uploadResume(file);
+}
+
+function handleDrop(event) {
+  event.preventDefault();
+  document.getElementById('uploadZone')?.classList.remove('drag');
+  const file = event.dataTransfer.files?.[0];
+  if (file) uploadResume(file);
+}
+
+function submitChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input?.value?.trim();
+  if (!msg) return;
+  if (input) input.value = '';
+  sendChat(msg).then(() => {
+    const scroll = document.getElementById('chatScroll');
+    if (scroll) scroll.scrollTop = scroll.scrollHeight;
+  });
+}
+
+function quickChat(msg) { sendChat(msg); }
+
+// Search input sync
+document.addEventListener('input', e => {
+  if (e.target.id === 'searchInput') state.searchQuery = e.target.value;
+});
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+// Patch setState to auto-persist user to localStorage
+const _origSetState = setState;
+function setState(updates) {
+  _origSetState(updates);
+  // Persist user whenever it's set
+  if (updates.user && updates.user.user_id) {
+    try { localStorage.setItem('archiq_user', JSON.stringify(updates.user)); } catch(e) {}
+  }
+}
+
+// Restore saved user on load
+(function initUser() {
+  try {
+    const saved = localStorage.getItem('archiq_user');
+    if (saved) {
+      const user = JSON.parse(saved);
+      if (user && user.user_id) {
+        state.user = user;
+        state.page = 'dashboard';
+      }
+    }
+  } catch(e) {}
+})();
+
+render();
+
+// Auto-load dashboard on startup if user exists
+if (state.user && state.page === 'dashboard') {
+  loadDashboard();
+}
+</script>
+
+<!-- PWA Service Worker Registration -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
