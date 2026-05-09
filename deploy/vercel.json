@@ -1,5 +1,8 @@
 {
   "version": 2,
+  "public": "frontend",
+  "buildCommand": "echo 'Static files ready'",
+  "outputDirectory": "frontend",
   "routes": [
     {
       "src": "/api/(.*)",
